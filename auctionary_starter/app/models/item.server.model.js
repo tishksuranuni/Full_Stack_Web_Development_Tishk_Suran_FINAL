@@ -100,14 +100,16 @@ const getDetails = (itemId, callback) => {
 
 const search = (params, callback) => {
     let SQL = `
-        SELECT DISTINCT 
+        SELECT DISTINCT
             items.item_id,
             items.name,
             items.description,
+            items.starting_bid,
             items.end_date,
             items.creator_id,
             users.first_name,
-            users.last_name
+            users.last_name,
+            (SELECT MAX(amount) FROM bids WHERE bids.item_id = items.item_id) as current_bid
         FROM items
         JOIN users ON items.creator_id = users.user_id
     `;
@@ -123,14 +125,16 @@ const search = (params, callback) => {
             sqlParams.push(Date.now());
         } else if (params.status === 'BID') {
             SQL = `
-                SELECT DISTINCT 
+                SELECT DISTINCT
                     items.item_id,
                     items.name,
                     items.description,
+                    items.starting_bid,
                     items.end_date,
                     items.creator_id,
                     users.first_name,
-                    users.last_name
+                    users.last_name,
+                    (SELECT MAX(amount) FROM bids WHERE bids.item_id = items.item_id) as current_bid
                 FROM items
                 JOIN users ON items.creator_id = users.user_id
                 JOIN bids ON items.item_id = bids.item_id
@@ -143,6 +147,10 @@ const search = (params, callback) => {
             whereConditions.push('items.end_date <= ?');
             sqlParams.push(Date.now());
         }
+    } else {
+        // When no status filter, show only active auctions
+        whereConditions.push('items.end_date > ?');
+        sqlParams.push(Date.now());
     }
     
     if (params.q) {

@@ -1,30 +1,113 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+/**
+ * App.vue - Root Application Component
+ * Provides the main layout structure with navigation and router view
+ */
+
+import NavBar from '@/components/NavBar.vue';
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+    <div class="app">
+        <NavBar />
+        
+        <main class="main-content">
+            <router-view v-slot="{ Component }">
+                <transition name="page" mode="out-in">
+                    <component :is="Component" />
+                </transition>
+            </router-view>
+        </main>
+        
+        <footer class="app-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <svg viewBox="0 0 32 32" fill="none" class="footer-logo">
+                            <polygon points="16,4 28,10 28,22 16,28 4,22 4,10" 
+                                     fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="16" cy="16" r="4" fill="currentColor"/>
+                        </svg>
+                        <span>Molecule Market</span>
+                    </div>
+                    <p class="footer-tagline">
+                        Your trusted marketplace for chemistry equipment and supplies.
+                    </p>
+                    <p class="footer-copy">
+                        &copy; {{ new Date().getFullYear() }} Molecule Market. 
+                        Built for Full Stack Web Development coursework.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.main-content {
+    flex: 1;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+/* Page transition animations */
+.page-enter-active,
+.page-leave-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.page-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+/* Footer styles */
+.app-footer {
+    background: var(--color-navy);
+    color: var(--color-white);
+    padding: var(--space-2xl) 0;
+    margin-top: auto;
+}
+
+.footer-content {
+    text-align: center;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: var(--space-md);
+}
+
+.footer-logo {
+    width: 24px;
+    height: 24px;
+    color: var(--color-teal-light);
+}
+
+.footer-tagline {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: var(--space-md);
+    font-size: 0.9375rem;
+}
+
+.footer-copy {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8125rem;
+    margin: 0;
 }
 </style>
