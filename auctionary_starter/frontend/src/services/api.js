@@ -145,7 +145,7 @@ export const authService = {
 export const itemService = {
     /**
      * Create a new auction item
-     * @param {Object} itemData - { name, description, starting_bid, end_date }
+     * @param {Object} itemData - { name, description, starting_bid, end_date, categories? }
      * @returns {Promise<{item_id: number}>}
      */
     async create(itemData) {
@@ -154,7 +154,7 @@ export const itemService = {
             body: JSON.stringify(itemData)
         });
     },
-    
+
     /**
      * Get item details
      * @param {number} itemId
@@ -163,23 +163,38 @@ export const itemService = {
     async getOne(itemId) {
         return apiRequest(`/item/${itemId}`);
     },
-    
+
     /**
      * Search/filter items
-     * @param {Object} params - { status?, q?, limit?, offset? }
+     * @param {Object} params - { status?, q?, limit?, offset?, category? }
      *   status: 'OPEN' (my listings), 'BID' (my bids), 'ARCHIVE' (ended)
+     *   category: category_id to filter by
      * @returns {Promise<Array>}
      */
     async search(params = {}) {
         const queryString = new URLSearchParams();
-        
+
         if (params.status) queryString.append('status', params.status);
         if (params.q) queryString.append('q', params.q);
         if (params.limit) queryString.append('limit', params.limit);
         if (params.offset) queryString.append('offset', params.offset);
-        
+        if (params.category) queryString.append('category', params.category);
+
         const query = queryString.toString();
         return apiRequest(`/search${query ? '?' + query : ''}`);
+    }
+};
+
+/**
+ * Category Endpoints (Extension Task 2)
+ */
+export const categoryService = {
+    /**
+     * Get all available categories
+     * @returns {Promise<Array>} Array of category objects
+     */
+    async getAll() {
+        return apiRequest('/categories');
     }
 };
 

@@ -80,6 +80,56 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
                 }
             }
         );
+
+        // Extension Task 2: Categories table
+        db.run(`CREATE TABLE categories (
+                category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT
+            )`, (err) => {
+                if(err){
+                    console.log('Categories table already created');
+                }else{
+                    console.log('Categories table created');
+
+                    // Insert default categories
+                    const defaultCategories = [
+                        ['Electronics', 'Electronic devices and gadgets'],
+                        ['Fashion', 'Clothing, accessories, and fashion items'],
+                        ['Home & Garden', 'Furniture, decor, and gardening items'],
+                        ['Sports & Outdoors', 'Sports equipment and outdoor gear'],
+                        ['Collectibles', 'Rare and collectible items'],
+                        ['Art', 'Artwork and creative pieces'],
+                        ['Books', 'Books and publications'],
+                        ['Toys & Games', 'Toys, games, and hobby items'],
+                        ['Automotive', 'Vehicles and automotive parts'],
+                        ['Other', 'Miscellaneous items']
+                    ];
+
+                    const stmt = db.prepare('INSERT INTO categories (name, description) VALUES (?, ?)');
+                    defaultCategories.forEach(cat => {
+                        stmt.run(cat[0], cat[1]);
+                    });
+                    stmt.finalize();
+                }
+            }
+        );
+
+        // Extension Task 2: Item-Categories junction table for many-to-many relationship
+        db.run(`CREATE TABLE item_categories (
+                item_id INTEGER,
+                category_id INTEGER,
+                PRIMARY KEY (item_id, category_id),
+                FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE,
+                FOREIGN KEY (category_id) REFERENCES categories(category_id)
+            )`, (err) => {
+                if(err){
+                    console.log('Item_categories table already created');
+                }else{
+                    console.log('Item_categories table created');
+                }
+            }
+        );
     }
 });
 

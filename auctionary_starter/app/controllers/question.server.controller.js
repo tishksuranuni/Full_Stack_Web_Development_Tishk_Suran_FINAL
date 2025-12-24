@@ -2,6 +2,7 @@ const questionModel = require('../models/question.server.model');
 const itemModel = require('../models/item.server.model');
 
 const { questionCreateSchema, answerCreateSchema, validate } = require('../validators/validators');
+const { validateFields } = require('../lib/profanityFilter');
 
 const create = (req, res) => {
     const itemId = parseInt(req.params.item_id, 10);
@@ -33,6 +34,17 @@ const create = (req, res) => {
         
         if (item.creator_id === req.userId) {
             return res.status(403).json({ error_message: 'Cannot ask question on your own item, surely you should already know the answer?!' });
+        }
+
+        // Check for profanity in question text
+        const profanityCheck = validateFields({
+            question_text: req.body.question_text
+        });
+
+        if (!profanityCheck.valid) {
+            return res.status(400).json({
+                error_message: 'Inappropriate language detected in question!'
+            });
         }
 
         const questionData = {
@@ -82,12 +94,23 @@ const answer = (req, res) => {
         if (question.creator_id !== req.userId) {
             return res.status(403).json({ error_message: 'Only the item creator can answer questions, do not try to speak on their behalf!' });
         }
-        
-        questionModel.answer(questionId, req.body.answer_text, (error, success) => {
+
+        // Check for profanity in answer text
+        const profanityCheck = validateFields({
+            answer_text: req.body.answer_text
+        });
+
+        if (!profanityCheck.valid) {
+            return res.status(400).json({
+                error_message: 'Inappropriate language detected in answer!'
+            });
+        }
+
+        questionModel.answer(questionId, req.body.answer_text, (error) => {
             if (error) {
                 return res.status(500).json({ error_message: 'Internal server error!' });
             }
-            
+
             res.status(200).json({ message: 'Answer added successfully!' });
         });
     });

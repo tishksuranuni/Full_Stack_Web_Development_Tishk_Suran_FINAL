@@ -113,10 +113,10 @@ const search = (params, callback) => {
         FROM items
         JOIN users ON items.creator_id = users.user_id
     `;
-    
+
     const whereConditions = [];
     const sqlParams = [];
-    
+
     if (params.status) {
         if (params.status === 'OPEN') {
             whereConditions.push('items.creator_id = ?');
@@ -152,13 +152,21 @@ const search = (params, callback) => {
         whereConditions.push('items.end_date > ?');
         sqlParams.push(Date.now());
     }
-    
+
+    // Extension Task 2: Add category join if category filter is provided
+    // Use LEFT JOIN to include items without categories when not filtering by category
+    if (params.category) {
+        SQL += ` LEFT JOIN item_categories ON items.item_id = item_categories.item_id `;
+        whereConditions.push('item_categories.category_id = ?');
+        sqlParams.push(params.category);
+    }
+
     if (params.q) {
         whereConditions.push('(items.name LIKE ? OR items.description LIKE ?)');
         sqlParams.push(`%${params.q}%`);
         sqlParams.push(`%${params.q}%`);
     }
-    
+
     if (whereConditions.length > 0) {
         SQL += ' WHERE ' + whereConditions.join(' AND ');
     }

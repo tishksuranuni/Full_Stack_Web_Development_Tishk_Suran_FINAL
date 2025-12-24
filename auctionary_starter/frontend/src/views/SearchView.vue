@@ -7,7 +7,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '@/stores/auth';
-import { itemService } from '@/services/api';
+import { itemService, categoryService } from '@/services/api';
 import ItemCard from '@/components/ItemCard.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import EmptyState from '@/components/EmptyState.vue';
@@ -20,9 +20,14 @@ const { isLoggedIn } = useAuth();
 // Search state
 const searchQuery = ref('');
 const selectedStatus = ref('');
+const selectedCategory = ref('');
 const items = ref([]);
 const loading = ref(false);
 const error = ref(null);
+
+// Categories
+const categories = ref([]);
+const categoriesLoading = ref(false);
 
 // Pagination
 const limit = 12;
@@ -42,14 +47,26 @@ const availableFilters = computed(() => {
     return statusFilters.filter(f => !f.requiresAuth || isLoggedIn.value);
 });
 
-// Initialize from URL params
-onMounted(() => {
+// Initialize from URL params and load categories
+onMounted(async () => {
+    // Load categories
+    categoriesLoading.value = true;
+    try {
+        categories.value = await categoryService.getAll();
+    } catch (err) {
+        console.error('Failed to load categories:', err);
+    } finally {
+        categoriesLoading.value = false;
+    }
+
     const q = route.query.q;
     const status = route.query.status;
-    
+    const category = route.query.category;
+
     if (q) searchQuery.value = q;
     if (status) selectedStatus.value = status;
-    
+    if (category) selectedCategory.value = category;
+
     search();
 });
 
@@ -57,14 +74,17 @@ onMounted(() => {
 watch(() => route.query, (newQuery, oldQuery) => {
     const q = newQuery.q || '';
     const status = newQuery.status || '';
-    
+    const category = newQuery.category || '';
+
     const oldQ = oldQuery?.q || '';
     const oldStatus = oldQuery?.status || '';
-    
+    const oldCategory = oldQuery?.category || '';
+
     // Only trigger search if something actually changed
-    if (q !== oldQ || status !== oldStatus) {
+    if (q !== oldQ || status !== oldStatus || category !== oldCategory) {
         searchQuery.value = q;
         selectedStatus.value = status;
+        selectedCategory.value = category;
         offset.value = 0;
         search();
     }
@@ -73,29 +93,33 @@ watch(() => route.query, (newQuery, oldQuery) => {
 // Search function
 async function search(loadMore = false) {
     if (loading.value) return;
-    
+
     loading.value = true;
     error.value = null;
-    
+
     if (!loadMore) {
         offset.value = 0;
         items.value = [];
     }
-    
+
     try {
         const params = {
             limit,
             offset: offset.value
         };
-        
+
         if (searchQuery.value.trim()) {
             params.q = searchQuery.value.trim();
         }
-        
+
         if (selectedStatus.value) {
             params.status = selectedStatus.value;
         }
-        
+
+        if (selectedCategory.value) {
+            params.category = selectedCategory.value;
+        }
+
         const results = await itemService.search(params);
         
         if (loadMore) {
@@ -118,23 +142,46 @@ function handleSearch() {
     const query = {};
     if (searchQuery.value.trim()) query.q = searchQuery.value.trim();
     if (selectedStatus.value) query.status = selectedStatus.value;
-    
+    if (selectedCategory.value) query.category = selectedCategory.value;
+
     router.push({ query });
 }
 
 // Handle filter change - Fixed to directly trigger search after URL update
 function setFilter(status) {
     selectedStatus.value = status;
-    
+
     // Build new query object
     const query = {};
     if (searchQuery.value.trim()) query.q = searchQuery.value.trim();
     if (status) query.status = status;
-    
+    if (selectedCategory.value) query.category = selectedCategory.value;
+
     // Push to router - the watcher will handle the search
     // But if we're setting the same route, we need to force a search
     const currentStatus = route.query.status || '';
     if (currentStatus === status) {
+        // Same filter clicked - force refresh
+        offset.value = 0;
+        search();
+    } else {
+        router.push({ query });
+    }
+}
+
+// Handle category filter change
+function setCategory(categoryId) {
+    selectedCategory.value = categoryId;
+
+    // Build new query object
+    const query = {};
+    if (searchQuery.value.trim()) query.q = searchQuery.value.trim();
+    if (selectedStatus.value) query.status = selectedStatus.value;
+    if (categoryId) query.category = categoryId;
+
+    // Push to router
+    const currentCategory = route.query.category || '';
+    if (currentCategory === categoryId) {
         // Same filter clicked - force refresh
         offset.value = 0;
         search();
@@ -153,6 +200,7 @@ function loadMore() {
 function clearSearch() {
     searchQuery.value = '';
     selectedStatus.value = '';
+    selectedCategory.value = '';
     router.push({ query: {} });
 }
 </script>
@@ -225,14 +273,38 @@ function clearSearch() {
                     {{ filter.label }}
                 </button>
             </nav>
+
+            <!-- Category Filters -->
+            <div v-if="!categoriesLoading && categories.length > 0" class="category-filters">
+                <div class="category-filters-label">Filter by category:</div>
+                <div class="category-filters-buttons">
+                    <button
+                        :class="['category-filter-btn', { active: !selectedCategory }]"
+                        @click="setCategory('')"
+                    >
+                        All Categories
+                    </button>
+                    <button
+                        v-for="category in categories"
+                        :key="category.category_id"
+                        :class="['category-filter-btn', { active: selectedCategory == category.category_id }]"
+                        @click="setCategory(category.category_id.toString())"
+                    >
+                        {{ category.name }}
+                    </button>
+                </div>
+            </div>
             
             <!-- Active Search Info -->
-            <div v-if="searchQuery || selectedStatus" class="active-search">
+            <div v-if="searchQuery || selectedStatus || selectedCategory" class="active-search">
                 <span>
                     Showing results
                     <template v-if="searchQuery"> for "{{ searchQuery }}"</template>
                     <template v-if="selectedStatus">
                         in {{ statusFilters.find(f => f.value === selectedStatus)?.label }}
+                    </template>
+                    <template v-if="selectedCategory">
+                        in {{ categories.find(c => c.category_id == selectedCategory)?.name }}
                     </template>
                 </span>
                 <button @click="clearSearch" class="clear-all">
@@ -437,6 +509,50 @@ function clearSearch() {
 .filter-icon {
     width: 16px;
     height: 16px;
+}
+
+/* Category Filters */
+.category-filters {
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--color-slate-50);
+    border-radius: var(--radius-lg);
+}
+
+.category-filters-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+}
+
+.category-filters-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.category-filter-btn {
+    padding: var(--space-xs) var(--space-md);
+    border: 1px solid var(--color-border);
+    background: white;
+    color: var(--color-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-filter-btn:hover {
+    border-color: var(--color-teal);
+    color: var(--color-teal);
+}
+
+.category-filter-btn.active {
+    background: var(--color-teal);
+    border-color: var(--color-teal);
+    color: white;
 }
 
 /* Active Search */

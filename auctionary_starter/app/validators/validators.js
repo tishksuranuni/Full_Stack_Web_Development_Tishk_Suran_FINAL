@@ -34,7 +34,8 @@ const itemCreateSchema = Joi.object({
             }
             return num;
         })
-    ).required()
+    ).required(),
+    categories: Joi.array().items(Joi.number().integer()).optional()
 }).options({ presence: 'required' });
 
 const bidCreateSchema = Joi.object({

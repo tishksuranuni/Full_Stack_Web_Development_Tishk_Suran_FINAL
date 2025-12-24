@@ -6,7 +6,7 @@
 
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { itemService, draftService } from '@/services/api';
+import { itemService, draftService, categoryService } from '@/services/api';
 import ErrorAlert from '@/components/ErrorAlert.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
@@ -19,6 +19,11 @@ const description = ref('');
 const startingBid = ref('');
 const endDate = ref('');
 const endTime = ref('');
+const selectedCategories = ref([]);
+
+// Categories
+const categories = ref([]);
+const categoriesLoading = ref(false);
 
 // UI state
 const loading = ref(false);
@@ -50,8 +55,18 @@ const isValid = computed(() => {
     );
 });
 
-// Load draft if editing
-onMounted(() => {
+// Load categories and draft if editing
+onMounted(async () => {
+    // Load categories
+    categoriesLoading.value = true;
+    try {
+        categories.value = await categoryService.getAll();
+    } catch (err) {
+        console.error('Failed to load categories:', err);
+    } finally {
+        categoriesLoading.value = false;
+    }
+
     const draftId = route.query.draft;
     if (draftId) {
         const draft = draftService.getOne(draftId);
@@ -60,7 +75,8 @@ onMounted(() => {
             name.value = draft.name || '';
             description.value = draft.description || '';
             startingBid.value = draft.starting_bid?.toString() || '';
-            
+            selectedCategories.value = draft.categories || [];
+
             if (draft.end_date) {
                 const date = new Date(draft.end_date);
                 endDate.value = date.toISOString().split('T')[0];
@@ -68,7 +84,7 @@ onMounted(() => {
             }
         }
     }
-    
+
     // Set default end time to tomorrow
     if (!endDate.value) {
         const tomorrow = new Date();
@@ -78,17 +94,27 @@ onMounted(() => {
     }
 });
 
+// Toggle category selection
+function toggleCategory(categoryId) {
+    const index = selectedCategories.value.indexOf(categoryId);
+    if (index > -1) {
+        selectedCategories.value.splice(index, 1);
+    } else {
+        selectedCategories.value.push(categoryId);
+    }
+}
+
 // Submit auction
 async function handleSubmit() {
     error.value = null;
-    
+
     if (!isValid.value) {
         error.value = 'Please fill in all fields correctly';
         return;
     }
-    
+
     loading.value = true;
-    
+
     try {
         const itemData = {
             name: name.value.trim(),
@@ -96,14 +122,19 @@ async function handleSubmit() {
             starting_bid: parseInt(startingBid.value, 10),
             end_date: getEndDateTime.value
         };
-        
+
+        // Add categories if selected
+        if (selectedCategories.value.length > 0) {
+            itemData.categories = selectedCategories.value;
+        }
+
         const response = await itemService.create(itemData);
-        
+
         // Delete draft if we were editing one
         if (editingDraftId.value) {
             draftService.delete(editingDraftId.value);
         }
-        
+
         // Navigate to the new item
         router.push(`/item/${response.item_id}`);
     } catch (err) {
@@ -117,14 +148,15 @@ function saveDraft() {
     saving.value = true;
     error.value = null;
     success.value = null;
-    
+
     const draftData = {
         name: name.value.trim(),
         description: description.value.trim(),
         starting_bid: startingBid.value ? parseInt(startingBid.value, 10) : null,
-        end_date: getEndDateTime.value
+        end_date: getEndDateTime.value,
+        categories: selectedCategories.value
     };
-    
+
     try {
         if (editingDraftId.value) {
             draftService.update(editingDraftId.value, draftData);
@@ -134,7 +166,7 @@ function saveDraft() {
             editingDraftId.value = draft.id;
             success.value = 'Draft saved successfully';
         }
-        
+
         // Clear success after 3 seconds
         setTimeout(() => {
             success.value = null;
@@ -158,6 +190,7 @@ function discardDraft() {
             name.value = '';
             description.value = '';
             startingBid.value = '';
+            selectedCategories.value = [];
             // Keep default end date
         }
     }
@@ -244,7 +277,32 @@ function formatCurrency(value) {
                         ></textarea>
                         <span class="form-hint">Be detailed — better descriptions attract more bidders</span>
                     </div>
-                    
+
+                    <!-- Categories -->
+                    <div class="form-group">
+                        <label>
+                            Categories
+                            <span class="optional">(optional)</span>
+                        </label>
+                        <div v-if="categoriesLoading" class="categories-loading">
+                            <LoadingSpinner size="sm" />
+                            Loading categories...
+                        </div>
+                        <div v-else class="categories-grid">
+                            <button
+                                v-for="category in categories"
+                                :key="category.category_id"
+                                type="button"
+                                :class="['category-btn', { selected: selectedCategories.includes(category.category_id) }]"
+                                @click="toggleCategory(category.category_id)"
+                                :disabled="loading"
+                            >
+                                {{ category.name }}
+                            </button>
+                        </div>
+                        <span class="form-hint">Select one or more categories that describe your item</span>
+                    </div>
+
                     <!-- Starting Bid & End Date Row -->
                     <div class="form-row">
                         <!-- Starting Bid -->
@@ -448,11 +506,61 @@ function formatCurrency(value) {
     color: var(--color-error);
 }
 
+.optional {
+    color: var(--color-text-muted);
+    font-weight: 400;
+    font-size: 0.875rem;
+}
+
 .form-hint {
     display: block;
     font-size: 0.8125rem;
     color: var(--color-text-muted);
     margin-top: var(--space-xs);
+}
+
+/* Categories */
+.categories-loading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.categories-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.category-btn {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    background: white;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-btn:hover:not(:disabled) {
+    border-color: var(--color-navy);
+    background: var(--color-slate-50);
+}
+
+.category-btn.selected {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+    color: white;
+}
+
+.category-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .form-row {
