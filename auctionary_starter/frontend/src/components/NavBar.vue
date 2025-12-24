@@ -37,35 +37,16 @@ function closeMobileMenu() {
             <router-link to="/" class="navbar-brand" @click="closeMobileMenu">
                 <div class="brand-icon">
                     <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Decorative orbit rings with gradients -->
-                        <circle cx="16" cy="16" r="13" stroke="currentColor" stroke-width="0.5" opacity="0.15"/>
-                        <circle cx="16" cy="16" r="11.5" stroke="currentColor" stroke-width="1.5" opacity="0.2" stroke-dasharray="2 3"/>
-                        <circle cx="16" cy="16" r="6.5" stroke="currentColor" stroke-width="1.5" opacity="0.2" stroke-dasharray="2 3"/>
-
-                        <!-- Nucleus with gradient effect -->
-                        <circle cx="16" cy="16" r="4.5" fill="currentColor"/>
-                        <circle cx="16" cy="16" r="3.2" fill="#14b8a6" opacity="0.6"/>
-                        <circle cx="16" cy="16" r="1.8" fill="#5eead4" opacity="0.8"/>
-
-                        <!-- Electrons on outer orbit with glow -->
-                        <circle cx="16" cy="4" r="2.2" fill="#f59e0b" opacity="0.3"/>
-                        <circle cx="16" cy="4" r="1.5" fill="#f59e0b"/>
-
-                        <circle cx="27.5" cy="16" r="2.2" fill="#f59e0b" opacity="0.3"/>
-                        <circle cx="27.5" cy="16" r="1.5" fill="#f59e0b"/>
-
-                        <circle cx="16" cy="28" r="2.2" fill="#fbbf24" opacity="0.3"/>
-                        <circle cx="16" cy="28" r="1.5" fill="#fbbf24"/>
-
-                        <circle cx="4.5" cy="16" r="2.2" fill="#fbbf24" opacity="0.3"/>
-                        <circle cx="4.5" cy="16" r="1.5" fill="#fbbf24"/>
-
-                        <!-- Electrons on inner orbit with glow -->
-                        <circle cx="16" cy="9.5" r="2" fill="#fcd34d" opacity="0.3"/>
-                        <circle cx="16" cy="9.5" r="1.3" fill="#fcd34d"/>
-
-                        <circle cx="16" cy="22.5" r="2" fill="#fcd34d" opacity="0.3"/>
-                        <circle cx="16" cy="22.5" r="1.3" fill="#fcd34d"/>
+                        <!-- Hexagonal shape (like periodic table element) -->
+                        <polygon
+                            points="16,4 26,10 26,22 16,28 6,22 6,10"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            fill="none"
+                        />
+                        <!-- Central element symbol -->
+                        <circle cx="16" cy="16" r="5" fill="currentColor"/>
+                        <circle cx="16" cy="16" r="3" fill="white" opacity="0.3"/>
                     </svg>
                 </div>
                 <span class="brand-text">Elemental Exchange</span>
@@ -144,38 +125,48 @@ function closeMobileMenu() {
 
 <style scoped>
 .navbar {
-    background: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .navbar-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 64px;
+    height: 72px;
 }
 
 .navbar-brand {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    color: var(--color-teal);
+    gap: var(--space-md);
+    color: var(--color-navy);
     text-decoration: none;
     font-family: var(--font-heading);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1.125rem;
+    letter-spacing: -0.01em;
+    transition: all 0.2s ease;
 }
 
 .navbar-brand:hover {
-    color: var(--color-teal-dark);
+    color: var(--color-teal);
+}
+
+.navbar-brand:hover .brand-icon {
+    transform: translateY(-1px);
 }
 
 .brand-icon {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    transition: transform 0.2s ease;
 }
 
 .brand-icon svg {
@@ -183,33 +174,64 @@ function closeMobileMenu() {
     height: 100%;
 }
 
+.brand-text {
+    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 .navbar-links {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: var(--space-xs);
 }
 
 .nav-link {
     font-family: var(--font-heading);
     font-weight: 500;
     font-size: 0.9375rem;
-    color: var(--color-slate);
+    color: var(--color-text-muted);
     padding: var(--space-sm) var(--space-md);
     border-radius: var(--radius-md);
-    transition: all var(--transition-fast);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 80%;
+    height: 2px;
+    background: var(--color-teal);
+    border-radius: 2px;
+    transition: transform 0.2s ease;
 }
 
 .nav-link:hover {
-    color: var(--color-teal);
-    background: var(--color-bg-alt);
+    color: var(--color-navy);
+}
+
+.nav-link:hover::after {
+    transform: translateX(-50%) scaleX(1);
 }
 
 .nav-link.router-link-active {
     color: var(--color-teal);
+    font-weight: 600;
+}
+
+.nav-link.router-link-active::after {
+    transform: translateX(-50%) scaleX(1);
 }
 
 .nav-btn {
-    margin-left: var(--space-sm);
+    margin-left: var(--space-md);
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Mobile Menu Button */

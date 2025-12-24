@@ -533,26 +533,83 @@ function formatCurrency(value) {
 }
 
 .category-btn {
+    position: relative;
     padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--color-border);
+    border: 2px solid transparent;
     background: white;
     color: var(--color-text);
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(100, 116, 139, 0.15);
+    overflow: hidden;
+    letter-spacing: 0.02em;
+}
+
+.category-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.05) 0%, rgba(20, 184, 166, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.category-btn::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-navy);
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.category-btn > * {
+    position: relative;
+    z-index: 1;
 }
 
 .category-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
     border-color: var(--color-navy);
-    background: var(--color-slate-50);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15),
+                0 0 0 1px var(--color-navy);
+}
+
+.category-btn:hover:not(:disabled)::before {
+    opacity: 1;
+}
+
+.category-btn:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .category-btn.selected {
-    background: var(--color-navy);
+    background: linear-gradient(135deg, var(--color-navy) 0%, #0f172a 100%);
     border-color: var(--color-navy);
     color: white;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3),
+                0 0 0 1px var(--color-navy),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.category-btn.selected::after {
+    opacity: 1;
+    transform: scale(1);
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .category-btn:disabled {
