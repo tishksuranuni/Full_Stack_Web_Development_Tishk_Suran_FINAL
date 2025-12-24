@@ -62,16 +62,16 @@ onMounted(loadFeaturedItems);
                     <p class="hero-subtitle">
                         Have you ever wanted to buy one gram of Plutonium, maybe some Polonium or some Thallium online? I hope not, but if you did, this is the website for you!
                     </p>
-                    
+
                     <!-- Search Form -->
                     <form @submit.prevent="handleSearch" class="search-form">
                         <div class="search-input-wrapper">
                             <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
                             </svg>
-                            <input 
+                            <input
                                 v-model="searchQuery"
-                                type="text" 
+                                type="text"
                                 placeholder="Search for periodic elements..."
                                 class="search-input"
                             />
@@ -80,7 +80,7 @@ onMounted(loadFeaturedItems);
                             Search
                         </button>
                     </form>
-                    
+
                     <!-- Quick Actions -->
                     <div class="quick-actions">
                         <router-link to="/search" class="quick-link">
@@ -95,17 +95,17 @@ onMounted(loadFeaturedItems);
                         </router-link>
                     </div>
                 </div>
-                
+
                 <!-- Decorative Element -->
                 <div class="hero-decoration">
                     <svg viewBox="0 0 200 200" fill="none" class="hex-decoration">
-                        <polygon points="100,10 180,55 180,145 100,190 20,145 20,55" 
-                                 fill="none" stroke="currentColor" stroke-width="2" opacity="0.1"/>
-                        <polygon points="100,30 160,65 160,135 100,170 40,135 40,65" 
-                                 fill="none" stroke="currentColor" stroke-width="2" opacity="0.15"/>
-                        <polygon points="100,50 140,75 140,125 100,150 60,125 60,75" 
-                                 fill="none" stroke="currentColor" stroke-width="2" opacity="0.2"/>
-                        <circle cx="100" cy="100" r="20" fill="currentColor" opacity="0.15"/>
+                        <polygon points="100,10 180,55 180,145 100,190 20,145 20,55"
+                                 fill="none" stroke="currentColor" stroke-width="2" opacity="0.1" class="hex-ring hex-ring-1"/>
+                        <polygon points="100,30 160,65 160,135 100,170 40,135 40,65"
+                                 fill="none" stroke="currentColor" stroke-width="2" opacity="0.15" class="hex-ring hex-ring-2"/>
+                        <polygon points="100,50 140,75 140,125 100,150 60,125 60,75"
+                                 fill="none" stroke="currentColor" stroke-width="2" opacity="0.2" class="hex-ring hex-ring-3"/>
+                        <circle cx="100" cy="100" r="20" fill="currentColor" opacity="0.15" class="hex-core"/>
                     </svg>
                 </div>
             </div>
@@ -172,7 +172,7 @@ onMounted(loadFeaturedItems);
                         <h3>Real-time Updates</h3>
                         <p>Live countdown timers and instant bid notifications keep you informed.</p>
                     </div>
-                    
+
                     <div class="feature-card">
                         <div class="feature-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -181,6 +181,16 @@ onMounted(loadFeaturedItems);
                         </div>
                         <h3>Direct Q&A</h3>
                         <p>Ask sellers questions directly. Get answers before you bid.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                            </svg>
+                        </div>
+                        <h3>Elemental Categories</h3>
+                        <p>Browse by periodic table groups. Find exactly the element you need.</p>
                     </div>
                 </div>
             </div>
@@ -192,6 +202,65 @@ onMounted(loadFeaturedItems);
 .home-view {
     display: flex;
     flex-direction: column;
+}
+
+/* Smooth Animations */
+@keyframes smoothFadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gentleFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-8px) scale(1.02);
+    }
+}
+
+@keyframes subtlePulse {
+    0%, 100% {
+        opacity: 0.15;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.25;
+        transform: scale(1.05);
+    }
+}
+
+/* Hero content cascade */
+.hero-content > * {
+    animation: smoothFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    will-change: opacity, transform;
+}
+
+.hero-title {
+    animation-delay: 0.15s;
+}
+
+.hero-subtitle {
+    animation-delay: 0.35s;
+}
+
+.search-form {
+    animation-delay: 0.55s;
+}
+
+.quick-actions {
+    animation-delay: 0.75s;
+}
+
+/* Grid items */
+.stagger-item {
+    opacity: 1;
 }
 
 /* Hero Section */
@@ -290,20 +359,27 @@ onMounted(loadFeaturedItems);
 
 .hero-decoration {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 240px;
+    height: 240px;
     color: var(--color-teal);
+    animation: smoothFadeUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.95s both;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .hex-decoration {
     width: 100%;
     height: 100%;
-    animation: float 6s ease-in-out infinite;
+    animation: gentleFloat 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite 2s;
+    display: block;
+    will-change: transform;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.hex-core {
+    animation: subtlePulse 4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite 2.5s;
+    transform-origin: center;
+    will-change: opacity, transform;
 }
 
 /* Featured Section */
@@ -341,6 +417,14 @@ onMounted(loadFeaturedItems);
 .feature-card {
     text-align: center;
     padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .feature-icon {
@@ -348,6 +432,11 @@ onMounted(loadFeaturedItems);
     height: 48px;
     margin: 0 auto var(--space-md);
     color: var(--color-teal);
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
 }
 
 .feature-icon svg {
@@ -358,12 +447,14 @@ onMounted(loadFeaturedItems);
 .feature-card h3 {
     font-size: 1.125rem;
     margin-bottom: var(--space-sm);
+    font-weight: 600;
 }
 
 .feature-card p {
     color: var(--color-text-muted);
     font-size: 0.9375rem;
     margin: 0;
+    line-height: 1.6;
 }
 
 /* Responsive */

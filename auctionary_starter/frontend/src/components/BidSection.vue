@@ -167,9 +167,9 @@ onMounted(loadBidHistory);
                         <span class="form-hint">Minimum: {{ formatCurrency(minimumBid) }}</span>
                     </div>
                     
-                    <button 
-                        type="submit" 
-                        class="btn btn-accent btn-lg"
+                    <button
+                        type="submit"
+                        class="btn btn-accent"
                         :disabled="submitting"
                     >
                         {{ submitting ? 'Placing bid...' : 'Place Bid' }}
@@ -271,12 +271,12 @@ onMounted(loadBidHistory);
 
 .bid-form .form-row {
     display: flex;
-    gap: var(--space-md);
+    gap: var(--space-sm);
     align-items: flex-end;
 }
 
 .bid-input-group {
-    flex: 1;
+    flex: 0 1 auto;
     margin-bottom: 0;
 }
 
@@ -288,17 +288,21 @@ onMounted(loadBidHistory);
 .input-with-prefix .prefix {
     display: flex;
     align-items: center;
-    padding: 0 var(--space-md);
-    background: var(--color-border);
+    padding: 0 var(--space-sm);
+    background: var(--color-slate-100);
     border: 1px solid var(--color-border);
     border-right: none;
     border-radius: var(--radius-md) 0 0 var(--radius-md);
     font-weight: 500;
     color: var(--color-slate);
+    font-size: 0.875rem;
 }
 
 .input-with-prefix input {
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    flex: 1;
+    min-width: 80px;
+    max-width: 120px;
 }
 
 .login-prompt {
