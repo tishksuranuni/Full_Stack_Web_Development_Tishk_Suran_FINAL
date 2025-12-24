@@ -53,18 +53,22 @@ onMounted(() => {
     search();
 });
 
-// Watch for URL changes
-watch(() => route.query, (newQuery) => {
+// Watch for URL changes - Fixed to properly compare with previous values
+watch(() => route.query, (newQuery, oldQuery) => {
     const q = newQuery.q || '';
     const status = newQuery.status || '';
     
-    if (q !== searchQuery.value || status !== selectedStatus.value) {
+    const oldQ = oldQuery?.q || '';
+    const oldStatus = oldQuery?.status || '';
+    
+    // Only trigger search if something actually changed
+    if (q !== oldQ || status !== oldStatus) {
         searchQuery.value = q;
         selectedStatus.value = status;
         offset.value = 0;
         search();
     }
-});
+}, { deep: true });
 
 // Search function
 async function search(loadMore = false) {
@@ -118,10 +122,25 @@ function handleSearch() {
     router.push({ query });
 }
 
-// Handle filter change
+// Handle filter change - Fixed to directly trigger search after URL update
 function setFilter(status) {
     selectedStatus.value = status;
-    handleSearch();
+    
+    // Build new query object
+    const query = {};
+    if (searchQuery.value.trim()) query.q = searchQuery.value.trim();
+    if (status) query.status = status;
+    
+    // Push to router - the watcher will handle the search
+    // But if we're setting the same route, we need to force a search
+    const currentStatus = route.query.status || '';
+    if (currentStatus === status) {
+        // Same filter clicked - force refresh
+        offset.value = 0;
+        search();
+    } else {
+        router.push({ query });
+    }
 }
 
 // Load more
