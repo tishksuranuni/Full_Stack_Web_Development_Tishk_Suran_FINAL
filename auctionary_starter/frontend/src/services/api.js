@@ -1,5 +1,5 @@
 /**
- * API Service for Molecule Market
+ * API Service for Elemental Exchange
  * Handles all communication with the backend
  */
 

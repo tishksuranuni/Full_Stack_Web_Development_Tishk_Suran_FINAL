@@ -87,8 +87,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     // Update document title
     document.title = to.meta.title 
-        ? `${to.meta.title} | Molecule Market` 
-        : 'Molecule Market';
+        ? `${to.meta.title} | Elemental Exchange` 
+        : 'Elemental Exchange';
     
     // Check authentication requirements
     if (to.meta.requiresAuth && !isLoggedIn.value) {

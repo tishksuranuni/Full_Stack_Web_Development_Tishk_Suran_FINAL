@@ -56,7 +56,7 @@ async function handleSubmit() {
                         </svg>
                     </div>
                     <h1>Welcome Back</h1>
-                    <p>Sign in to your Molecule Market account</p>
+                    <p>Sign in to your Elemental Exchange account</p>
                 </div>
                 
                 <ErrorAlert 

@@ -60,8 +60,7 @@ onMounted(loadFeaturedItems);
                         <span class="highlight">Marketplace</span>
                     </h1>
                     <p class="hero-subtitle">
-                        Buy and sell laboratory equipment, chemicals, and supplies 
-                        in a trusted auction environment.
+                        Have you ever wanted to buy one gram of Plutonium, maybe some Polonium or some Thallium online? I hope not, but if you did, this is the website for you!
                     </p>
                     
                     <!-- Search Form -->
@@ -73,7 +72,7 @@ onMounted(loadFeaturedItems);
                             <input 
                                 v-model="searchQuery"
                                 type="text" 
-                                placeholder="Search for equipment, chemicals, supplies..."
+                                placeholder="Search for periodic elements..."
                                 class="search-input"
                             />
                         </div>
@@ -85,11 +84,11 @@ onMounted(loadFeaturedItems);
                     <!-- Quick Actions -->
                     <div class="quick-actions">
                         <router-link to="/search" class="quick-link">
-                            Browse all auctions
+                            Browse questionable auctions
                         </router-link>
                         <span class="divider">•</span>
                         <router-link v-if="isLoggedIn" to="/create" class="quick-link">
-                            Sell an item
+                            Sell some elements
                         </router-link>
                         <router-link v-else to="/register" class="quick-link">
                             Create an account
@@ -135,8 +134,8 @@ onMounted(loadFeaturedItems);
                 
                 <EmptyState 
                     v-else-if="featuredItems.length === 0"
-                    title="No auctions yet"
-                    message="Be the first to list an item for auction!"
+                    title="No Elements Available"
+                    message="Be the first to list something that probably should not be sold online!"
                     icon="beaker"
                 >
                     <template #action>
@@ -167,11 +166,11 @@ onMounted(loadFeaturedItems);
                     <div class="feature-card">
                         <div class="feature-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
-                        <h3>Secure Bidding</h3>
-                        <p>All bids are tracked and verified. Transparent auction history for every item.</p>
+                        <h3>Real-time Updates</h3>
+                        <p>Live countdown timers and instant bid notifications keep you informed.</p>
                     </div>
                     
                     <div class="feature-card">
@@ -182,16 +181,6 @@ onMounted(loadFeaturedItems);
                         </div>
                         <h3>Direct Q&A</h3>
                         <p>Ask sellers questions directly. Get answers before you bid.</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <h3>Real-time Updates</h3>
-                        <p>Live countdown timers and instant bid notifications keep you informed.</p>
                     </div>
                 </div>
             </div>

@@ -98,7 +98,7 @@ async function handleSubmit() {
                         </svg>
                     </div>
                     <h1>Create Account</h1>
-                    <p>Join Molecule Market today</p>
+                    <p>Join Elemental Exchange today</p>
                 </div>
                 
                 <ErrorAlert 

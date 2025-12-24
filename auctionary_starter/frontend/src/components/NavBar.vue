@@ -68,7 +68,7 @@ function closeMobileMenu() {
                         <circle cx="16" cy="22.5" r="1.3" fill="#fcd34d"/>
                     </svg>
                 </div>
-                <span class="brand-text">Molecule Market</span>
+                <span class="brand-text">Elemental Exchange</span>
             </router-link>
             
             <!-- Desktop Navigation -->

@@ -221,7 +221,7 @@ function formatCurrency(value) {
                     </div>
                     <div>
                         <h1>{{ editingDraftId ? 'Edit Draft' : 'Create Auction' }}</h1>
-                        <p>List your item for auction on Molecule Market</p>
+                        <p>List your elements for auction on Elemental Exchange</p>
                     </div>
                 </header>
                 
@@ -253,12 +253,11 @@ function formatCurrency(value) {
                             id="name"
                             v-model="name"
                             type="text"
-                            placeholder="e.g., Vintage Chemistry Set"
+                            placeholder="e.g., Plutonium (1g, lightly used)"
                             maxlength="100"
                             :disabled="loading"
                             required
                         />
-                        <span class="form-hint">Give your item a clear, descriptive name</span>
                     </div>
                     
                     <!-- Description -->
@@ -270,12 +269,11 @@ function formatCurrency(value) {
                         <textarea
                             id="description"
                             v-model="description"
-                            placeholder="Describe your item in detail. Include condition, history, and any relevant specifications..."
+                            placeholder="Describe the element, its properties, and its uses..."
                             rows="5"
                             :disabled="loading"
                             required
                         ></textarea>
-                        <span class="form-hint">Be detailed — better descriptions attract more bidders</span>
                     </div>
 
                     <!-- Categories -->
@@ -300,7 +298,6 @@ function formatCurrency(value) {
                                 {{ category.name }}
                             </button>
                         </div>
-                        <span class="form-hint">Select one or more categories that describe your item</span>
                     </div>
 
                     <!-- Starting Bid & End Date Row -->

@@ -28,13 +28,13 @@ import NavBar from '@/components/NavBar.vue';
                                      fill="none" stroke="currentColor" stroke-width="2"/>
                             <circle cx="16" cy="16" r="4" fill="currentColor"/>
                         </svg>
-                        <span>Molecule Market</span>
+                        <span>Elemental Exchange</span>
                     </div>
                     <p class="footer-tagline">
-                        Your trusted marketplace for chemistry equipment and supplies.
+                        Buy elements. React responsibly.
                     </p>
                     <p class="footer-copy">
-                        &copy; {{ new Date().getFullYear() }} Molecule Market. 
+                        &copy; {{ new Date().getFullYear() }} Elemental Exchange. 
                         Built for Full Stack Web Development coursework.
                     </p>
                 </div>
