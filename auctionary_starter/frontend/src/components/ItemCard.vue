@@ -32,7 +32,7 @@ const elementSymbol = computed(() => {
 
 // Pseudo-random atomic number based on item_id
 const atomicNumber = computed(() => {
-    return props.item.item_id % 118 + 1;
+    return props.item.item_id % 118;
 });
 
 function formatCurrency(amount) {

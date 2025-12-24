@@ -92,19 +92,19 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
                 }else{
                     console.log('Categories table created');
 
-                    // Insert default categories
-                    const defaultCategories = [
-                        ['Electronics', 'Electronic devices and gadgets'],
-                        ['Fashion', 'Clothing, accessories, and fashion items'],
-                        ['Home & Garden', 'Furniture, decor, and gardening items'],
-                        ['Sports & Outdoors', 'Sports equipment and outdoor gear'],
-                        ['Collectibles', 'Rare and collectible items'],
-                        ['Art', 'Artwork and creative pieces'],
-                        ['Books', 'Books and publications'],
-                        ['Toys & Games', 'Toys, games, and hobby items'],
-                        ['Automotive', 'Vehicles and automotive parts'],
-                        ['Other', 'Miscellaneous items']
-                    ];
+                const defaultCategories = [
+                    ['Alkali Metals', 'Highly reactive metals in Group 1 of the periodic table'],
+                    ['Alkaline Earth Metals', 'Reactive metals in Group 2 of the periodic table'],
+                    ['Transition Metals', 'Metals in Groups 3–12 with variable oxidation states'],
+                    ['Post-Transition Metals', 'Metals with lower melting points and higher electronegativity'],
+                    ['Metalloids', 'Elements with properties of both metals and nonmetals'],
+                    ['Nonmetals', 'Elements that lack metallic characteristics'],
+                    ['Halogens', 'Highly reactive nonmetals in Group 17'],
+                    ['Noble Gases', 'Inert gases with full valence electron shells'],
+                    ['Lanthanides', 'Rare earth elements with atomic numbers 57–71'],
+                    ['Actinides', 'Radioactive elements with atomic numbers 89–103']
+                ];
+
 
                     const stmt = db.prepare('INSERT INTO categories (name, description) VALUES (?, ?)');
                     defaultCategories.forEach(cat => {
