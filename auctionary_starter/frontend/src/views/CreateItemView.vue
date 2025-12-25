@@ -7,11 +7,13 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { itemService, draftService, categoryService } from '@/services/api';
+import { useToast } from '@/composables/useToast';
 import ErrorAlert from '@/components/ErrorAlert.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 const router = useRouter();
 const route = useRoute();
+const { success: showSuccessToast } = useToast();
 
 // Form state
 const name = ref('');
@@ -44,6 +46,14 @@ const getEndDateTime = computed(() => {
     return new Date(`${endDate.value}T${endTime.value}`).getTime();
 });
 
+// Field-level validation errors
+const fieldErrors = ref({
+    name: '',
+    description: '',
+    startingBid: '',
+    endDate: ''
+});
+
 // Validation
 const isValid = computed(() => {
     return (
@@ -54,6 +64,45 @@ const isValid = computed(() => {
         getEndDateTime.value > Date.now()
     );
 });
+
+// Validate individual fields
+function validateField(field) {
+    switch(field) {
+        case 'name':
+            if (!name.value.trim()) {
+                fieldErrors.value.name = 'Item name is required';
+            } else {
+                fieldErrors.value.name = '';
+            }
+            break;
+        case 'description':
+            if (!description.value.trim()) {
+                fieldErrors.value.description = 'Description is required';
+            } else {
+                fieldErrors.value.description = '';
+            }
+            break;
+        case 'startingBid':
+            const bid = parseInt(startingBid.value, 10);
+            if (!startingBid.value) {
+                fieldErrors.value.startingBid = 'Starting bid is required';
+            } else if (isNaN(bid) || bid < 1) {
+                fieldErrors.value.startingBid = 'Starting bid must be at least £1';
+            } else {
+                fieldErrors.value.startingBid = '';
+            }
+            break;
+        case 'endDate':
+            if (!endDate.value || !endTime.value) {
+                fieldErrors.value.endDate = 'End date and time are required';
+            } else if (getEndDateTime.value <= Date.now()) {
+                fieldErrors.value.endDate = 'End date must be in the future';
+            } else {
+                fieldErrors.value.endDate = '';
+            }
+            break;
+    }
+}
 
 // Load categories and draft if editing
 onMounted(async () => {
@@ -160,17 +209,12 @@ function saveDraft() {
     try {
         if (editingDraftId.value) {
             draftService.update(editingDraftId.value, draftData);
-            success.value = 'Draft updated successfully';
+            showSuccessToast('Draft updated successfully');
         } else {
             const draft = draftService.save(draftData);
             editingDraftId.value = draft.id;
-            success.value = 'Draft saved successfully';
+            showSuccessToast('Draft saved successfully');
         }
-
-        // Clear success after 3 seconds
-        setTimeout(() => {
-            success.value = null;
-        }, 3000);
     } catch (err) {
         error.value = 'Failed to save draft';
     } finally {
@@ -226,21 +270,13 @@ function formatCurrency(value) {
                 </header>
                 
                 <!-- Alerts -->
-                <ErrorAlert 
-                    v-if="error" 
-                    :message="error" 
+                <ErrorAlert
+                    v-if="error"
+                    :message="error"
                     type="error"
                     @dismiss="error = null"
                 />
-                
-                <div v-if="success" class="alert alert-success">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12l2 2 4-4"/>
-                        <circle cx="12" cy="12" r="10"/>
-                    </svg>
-                    {{ success }}
-                </div>
-                
+
                 <!-- Form -->
                 <form @submit.prevent="handleSubmit" class="create-form">
                     <!-- Name -->
@@ -256,8 +292,10 @@ function formatCurrency(value) {
                             placeholder="e.g., Plutonium (1g, lightly used)"
                             maxlength="100"
                             :disabled="loading"
+                            @blur="validateField('name')"
                             required
                         />
+                        <span v-if="fieldErrors.name" class="form-error">{{ fieldErrors.name }}</span>
                     </div>
                     
                     <!-- Description -->
@@ -271,9 +309,17 @@ function formatCurrency(value) {
                             v-model="description"
                             placeholder="Describe the element, its properties, and its uses..."
                             rows="5"
+                            maxlength="1000"
                             :disabled="loading"
+                            @blur="validateField('description')"
                             required
                         ></textarea>
+                        <div class="field-meta">
+                            <span v-if="fieldErrors.description" class="form-error">{{ fieldErrors.description }}</span>
+                            <span class="char-count" :class="{ warning: description.length > 900 }">
+                                {{ description.length }} / 1000 characters
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Categories -->
@@ -318,10 +364,12 @@ function formatCurrency(value) {
                                     min="1"
                                     step="1"
                                     :disabled="loading"
+                                    @blur="validateField('startingBid')"
                                     required
                                 />
                             </div>
-                            <span v-if="startingBid" class="form-hint">
+                            <span v-if="fieldErrors.startingBid" class="form-error">{{ fieldErrors.startingBid }}</span>
+                            <span v-else-if="startingBid" class="form-hint">
                                 {{ formatCurrency(startingBid) }}
                             </span>
                         </div>
@@ -338,10 +386,11 @@ function formatCurrency(value) {
                                 type="date"
                                 :min="minDate"
                                 :disabled="loading"
+                                @blur="validateField('endDate')"
                                 required
                             />
                         </div>
-                        
+
                         <!-- End Time -->
                         <div class="form-group">
                             <label for="endTime">
@@ -353,8 +402,10 @@ function formatCurrency(value) {
                                 v-model="endTime"
                                 type="time"
                                 :disabled="loading"
+                                @blur="validateField('endDate')"
                                 required
                             />
+                            <span v-if="fieldErrors.endDate" class="form-error">{{ fieldErrors.endDate }}</span>
                         </div>
                     </div>
                     
@@ -717,6 +768,33 @@ function formatCurrency(value) {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Field validation styles */
+.field-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xs);
+    gap: var(--space-sm);
+}
+
+.form-error {
+    display: block;
+    color: var(--color-error);
+    font-size: 0.8125rem;
+    margin-top: var(--space-xs);
+}
+
+.char-count {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-left: auto;
+}
+
+.char-count.warning {
+    color: var(--color-warning);
+    font-weight: 500;
 }
 
 /* Drafts Link */

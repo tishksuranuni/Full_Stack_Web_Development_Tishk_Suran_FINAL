@@ -32,6 +32,18 @@ async function apiRequest(endpoint, options = {}) {
         const data = await response.json().catch(() => ({}));
         
         if (!response.ok) {
+            // Handle expired/invalid session
+            if (response.status === 401) {
+                // Clear session data
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('user_id');
+
+                // Redirect to login if not already there
+                if (!window.location.pathname.includes('/login')) {
+                    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                }
+            }
+
             throw {
                 status: response.status,
                 message: data.error_message || 'An unexpected error occurred',

@@ -218,7 +218,9 @@ onMounted(loadQuestions);
                             />
                             
                             <div class="form-group">
+                                <label for="answer-textarea" class="sr-only">Your answer</label>
                                 <textarea
+                                    id="answer-textarea"
                                     v-model="answerText"
                                     rows="3"
                                     placeholder="Write your answer..."

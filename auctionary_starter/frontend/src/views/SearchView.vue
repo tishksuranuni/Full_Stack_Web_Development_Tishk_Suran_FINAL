@@ -9,6 +9,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '@/stores/auth';
 import { itemService, categoryService } from '@/services/api';
 import ItemCard from '@/components/ItemCard.vue';
+import ItemCardSkeleton from '@/components/ItemCardSkeleton.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import EmptyState from '@/components/EmptyState.vue';
 import ErrorAlert from '@/components/ErrorAlert.vue';
@@ -217,21 +218,24 @@ function clearSearch() {
             <!-- Search Bar -->
             <form @submit.prevent="handleSearch" class="search-bar">
                 <div class="search-input-wrapper">
+                    <label for="search-input" class="sr-only">Search auctions</label>
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="M21 21l-4.35-4.35"/>
                     </svg>
                     <input
+                        id="search-input"
                         v-model="searchQuery"
                         type="text"
                         placeholder="Search auctions..."
                         class="search-input"
                     />
-                    <button 
+                    <button
                         v-if="searchQuery"
                         type="button"
                         class="clear-btn"
                         @click="searchQuery = ''; handleSearch()"
+                        aria-label="Clear search"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -328,9 +332,9 @@ function clearSearch() {
             
             <!-- Results -->
             <div class="results-section">
-                <!-- Loading (initial) -->
-                <div v-if="loading && items.length === 0" class="loading-container">
-                    <LoadingSpinner size="lg" />
+                <!-- Loading (initial) with skeletons -->
+                <div v-if="loading && items.length === 0" class="items-grid">
+                    <ItemCardSkeleton v-for="i in 8" :key="`skeleton-${i}`" />
                 </div>
                 
                 <!-- Items Grid -->

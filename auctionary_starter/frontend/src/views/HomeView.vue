@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router';
 import { itemService } from '@/services/api';
 import { useAuth } from '@/stores/auth';
 import ItemCard from '@/components/ItemCard.vue';
+import ItemCardSkeleton from '@/components/ItemCardSkeleton.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import ErrorAlert from '@/components/ErrorAlert.vue';
 import EmptyState from '@/components/EmptyState.vue';
@@ -66,10 +67,12 @@ onMounted(loadFeaturedItems);
                     <!-- Search Form -->
                     <form @submit.prevent="handleSearch" class="search-form">
                         <div class="search-input-wrapper">
+                            <label for="hero-search" class="sr-only">Search for periodic elements</label>
                             <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
                             </svg>
                             <input
+                                id="hero-search"
                                 v-model="searchQuery"
                                 type="text"
                                 placeholder="Search for periodic elements..."
@@ -124,7 +127,9 @@ onMounted(loadFeaturedItems);
                     </router-link>
                 </div>
                 
-                <LoadingSpinner v-if="loading" message="Loading auctions..." />
+                <div v-if="loading" class="featured-grid">
+                    <ItemCardSkeleton v-for="i in 8" :key="`skeleton-${i}`" />
+                </div>
                 
                 <ErrorAlert 
                     v-else-if="error" 

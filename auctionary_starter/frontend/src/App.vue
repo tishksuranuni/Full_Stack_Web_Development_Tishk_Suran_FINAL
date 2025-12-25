@@ -5,6 +5,7 @@
  */
 
 import NavBar from '@/components/NavBar.vue';
+import ToastContainer from '@/components/ToastContainer.vue';
 </script>
 
 <template>
@@ -40,6 +41,9 @@ import NavBar from '@/components/NavBar.vue';
                 </div>
             </div>
         </footer>
+
+        <!-- Toast notifications -->
+        <ToastContainer />
     </div>
 </template>
 

@@ -144,6 +144,23 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
+/* Enhanced focus styles for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: none;
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3);
+}
+
 input::placeholder, textarea::placeholder {
   color: var(--color-text-muted);
 }
@@ -153,6 +170,19 @@ label {
   font-weight: 500;
   margin-bottom: var(--space-xs);
   color: var(--color-navy);
+}
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 /* ============================================
